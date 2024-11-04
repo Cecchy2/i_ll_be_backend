@@ -7,6 +7,7 @@ import dariocecchinato.i_ll_be.payloads.AmicizieResponseDTO;
 import dariocecchinato.i_ll_be.services.AmicizieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class AmicizieController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public AmicizieResponseDTO save(@Validated @RequestBody AmiciziePayloadDTO body, BindingResult validationResult){
         if(validationResult.hasErrors()){
             String message= validationResult.getAllErrors().stream()

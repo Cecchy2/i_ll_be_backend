@@ -26,7 +26,7 @@ public class UtentiController {
     @Autowired
     private UtentiService utentiService;
 
-    @PostMapping(value = "/register", consumes = {"multipart/form-data"})
+    /*@PostMapping(value = "/register", consumes = {"multipart/form-data"})
     @ResponseStatus(HttpStatus.CREATED)
     public UtentiResponseDTO save(
             @Validated @ModelAttribute UtentiPayloadDTO body,
@@ -46,7 +46,7 @@ public class UtentiController {
 
         Utente newUser = utentiService.saveUtente(body, immagine);
         return new UtentiResponseDTO(newUser.getId());
-    }
+    }*/
 
     @PutMapping("/{utenteId}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
