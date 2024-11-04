@@ -9,6 +9,10 @@ import dariocecchinato.i_ll_be.payloads.UtentiPayloadDTO;
 import dariocecchinato.i_ll_be.repositories.UtentiRepository;
 import dariocecchinato.i_ll_be.tools.MailgunSender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +40,7 @@ public class UtentiService {
         newUtente.setCognome(body.cognome());
         newUtente.setEmail(body.email());
         newUtente.setUsername(body.username());
-        newUtente.setPassword(body.password());
+        newUtente.setPassword(bcrypt.encode(body.password()));
 
         newUtente= utentiRepository.save(newUtente);
         if (immagine != null && !immagine.isEmpty()) {
@@ -58,5 +62,46 @@ public class UtentiService {
 
     public Utente findById (UUID utenteID){
         return utentiRepository.findById(utenteID).orElseThrow(()-> new NotFoundException(utenteID));
+    }
+
+    public Utente findByEmail(String email) {
+        return this.utentiRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
+    }
+
+    public Page<Utente> findAll (int page, int size, String sortBy){
+        if (page > 100) page = 100;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return this.utentiRepository.findAll(pageable);
+    }
+
+    public Utente findUtenteById(UUID utenteId) {
+        Utente found = this.utentiRepository.findById(utenteId).orElseThrow(() -> new NotFoundException(utenteId));
+        return found;
+    }
+
+    public Utente findByIdAndUpdate(UUID utenteId, UtentiPayloadDTO body) {
+        Utente found = this.utentiRepository.findById(utenteId).orElseThrow(() -> new NotFoundException(utenteId));
+        if (found == null) throw new NotFoundException(utenteId);
+        found.setUsername(body.username());
+        found.setEmail(body.email());
+        found.setPassword(bcrypt.encode(body.password()));
+        found.setNome(body.nome());
+        found.setCognome(body.cognome());
+
+        return utentiRepository.save(found);
+    }
+
+    public Utente uploadImmagine(UUID utenteId, MultipartFile immagine) throws IOException{
+        Utente found= this.findUtenteById(utenteId);
+        String url= (String) cloudinary.uploader().upload(immagine.getBytes(), ObjectUtils.emptyMap()).get("url");
+        System.out.println("Url " + url);
+        found.setImmagine(url);
+        return this.utentiRepository.save(found);
+    }
+
+    public void findByIdAndDeleteUtente(UUID utenteId) {
+        Utente found = this.utentiRepository.findById(utenteId).orElseThrow(() -> new NotFoundException(utenteId));
+        if (found == null) throw new NotFoundException(utenteId);
+        this.utentiRepository.delete(found);
     }
 }
