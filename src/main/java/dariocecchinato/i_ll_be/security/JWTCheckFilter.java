@@ -1,6 +1,5 @@
 package dariocecchinato.i_ll_be.security;
 
-
 import dariocecchinato.i_ll_be.entities.Utente;
 import dariocecchinato.i_ll_be.exceptions.UnauthorizedException;
 import dariocecchinato.i_ll_be.services.UtentiService;
@@ -27,12 +26,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 	private UtentiService utentiService;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
 		String authHeader = request.getHeader("Authorization");
 
-		if (authHeader == null || !authHeader.startsWith("Bearer "))
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 			throw new UnauthorizedException("Per favore inserisci correttamente il token nell'Authorization Header");
+		}
 
 		String accessToken = authHeader.substring(7);
 
@@ -40,7 +41,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
 		String id = jwtTools.extractIdFromToken(accessToken);
 		Utente currentUtente = this.utentiService.findUtenteById(UUID.fromString(id));
-
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(currentUtente, null, currentUtente.getAuthorities());
 
@@ -51,6 +51,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return new AntPathMatcher().match("/authorization/**", request.getServletPath());
+		String path = request.getServletPath();
+		AntPathMatcher pathMatcher = new AntPathMatcher();
+		return pathMatcher.match("/authorization/**", path) || pathMatcher.match("/ws/**", path);
 	}
 }

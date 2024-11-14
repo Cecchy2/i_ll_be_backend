@@ -10,7 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,19 +27,23 @@ public class Config {
         httpSecurity.formLogin(http -> http.disable());
         httpSecurity.csrf(http -> http.disable());
         httpSecurity.sessionManagement(http -> http.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        httpSecurity.authorizeHttpRequests(http -> http.requestMatchers("/**").permitAll());
+        httpSecurity.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/ws/**").permitAll() // Permetti l'accesso pubblico all'endpoint WebSocket
+                .requestMatchers("/**").permitAll() // Permetti l'accesso pubblico a tutti gli endpoint (modificabile)
+                .anyRequest().authenticated()
+        );
         httpSecurity.cors(Customizer.withDefaults());
+
         return httpSecurity.build();
     }
 
     @Bean
     PasswordEncoder getBCrypt() {
         return new BCryptPasswordEncoder(11);
-
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(){
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3002", "http://localhost:5500", "http://localhost:3001", "https://sicilyfresh.netlify.app"));
         configuration.setAllowedMethods(Arrays.asList("*"));
