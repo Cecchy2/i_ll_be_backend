@@ -14,7 +14,13 @@ public class WebSocketController {
     public ChatMessage sendMessage(String message, SimpMessageHeaderAccessor headerAccessor) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(message);
-        chatMessage.setSender(headerAccessor.getSessionAttributes().get("username").toString());
+
+        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        if (username == null) {
+            username = "Anonimo";  // Imposta un valore predefinito se il nome utente non è presente
+        }
+
+        chatMessage.setSender(username);
         return chatMessage;
     }
 
