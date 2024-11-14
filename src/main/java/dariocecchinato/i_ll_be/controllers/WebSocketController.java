@@ -11,17 +11,8 @@ public class WebSocketController {
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
-    public ChatMessage sendMessage(String message, SimpMessageHeaderAccessor headerAccessor) {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(message);
-
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if (username == null) {
-            username = "Anonimo";  // Imposta un valore predefinito se il nome utente non è presente
-        }
-
-        chatMessage.setSender(username);
-        return chatMessage;
+    public ChatMessage sendMessage(ChatMessage message) {
+        return message; // Ora il messaggio conterrà sia il contenuto che il sender
     }
 
     @MessageMapping("/chat.addUser")
