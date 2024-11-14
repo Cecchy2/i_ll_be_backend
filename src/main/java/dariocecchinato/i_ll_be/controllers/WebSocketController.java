@@ -1,5 +1,6 @@
 package dariocecchinato.i_ll_be.controllers;
 
+import dariocecchinato.i_ll_be.entities.ChatMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -10,8 +11,11 @@ public class WebSocketController {
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
-    public String sendMessage(String message, SimpMessageHeaderAccessor headerAccessor) {
-        return message; // Invia il messaggio a tutti i client connessi al topic pubblico
+    public ChatMessage sendMessage(String message, SimpMessageHeaderAccessor headerAccessor) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(message);
+        chatMessage.setSender(headerAccessor.getSessionAttributes().get("username").toString());
+        return chatMessage;
     }
 
     @MessageMapping("/chat.addUser")
