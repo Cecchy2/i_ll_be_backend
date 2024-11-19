@@ -26,28 +26,6 @@ public class UtentiController {
     @Autowired
     private UtentiService utentiService;
 
-    /*@PostMapping(value = "/register", consumes = {"multipart/form-data"})
-    @ResponseStatus(HttpStatus.CREATED)
-    public UtentiResponseDTO save(
-            @Validated @ModelAttribute UtentiPayloadDTO body,
-            @RequestParam(value = "immagine", required = false) MultipartFile immagine,
-            BindingResult validationResult) throws IOException {
-
-        if (validationResult.hasErrors()) {
-            String messages = validationResult.getAllErrors().stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.joining(". "));
-            throw new BadRequestException("Ci sono stati errori nel payload. " + messages);
-        }
-
-        if (utentiService.existsByEmail(body.email())) {
-            throw new BadRequestException("L'email è già in uso.");
-        }
-
-        Utente newUser = utentiService.saveUtente(body, immagine);
-        return new UtentiResponseDTO(newUser.getId());
-    }*/
-
     @PutMapping("/{utenteId}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Utente findByIdAndUpdate(@PathVariable UUID utenteId, @RequestBody @Validated UtentiPayloadDTO body, BindingResult validationResult) {
@@ -85,6 +63,11 @@ public class UtentiController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENTE', 'FORNITORE')")
     public Utente uploadImmagine(@PathVariable UUID utenteId, @RequestParam("immagine") MultipartFile immagine) throws IOException {
         return this.utentiService.uploadImmagine(utenteId,immagine);
+    }
+    @PatchMapping("/{utenteId}/immagineCopertina")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENTE', 'FORNITORE')")
+    public Utente uploadImmagineCopertina(@PathVariable UUID utenteId, @RequestParam("immagineCopertina") MultipartFile immagineCopertina) throws IOException {
+        return this.utentiService.uploadImmagineCopertina(utenteId,immagineCopertina);
     }
 
     @GetMapping("/me")

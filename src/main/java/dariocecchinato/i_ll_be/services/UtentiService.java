@@ -34,7 +34,7 @@ public class UtentiService {
 
 
 
-    public Utente saveUtente(UtentiPayloadDTO body, MultipartFile immagine) throws IOException{
+    public Utente saveUtente(UtentiPayloadDTO body, MultipartFile immagine, MultipartFile immagineCopertina) throws IOException{
         Utente newUtente = new Utente();
         newUtente.setNome(body.nome());
         newUtente.setCognome(body.cognome());
@@ -43,13 +43,26 @@ public class UtentiService {
         newUtente.setPassword(bcrypt.encode(body.password()));
 
         newUtente= utentiRepository.save(newUtente);
-        if (immagine != null && !immagine.isEmpty()) {
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(immagine.getBytes(), ObjectUtils.emptyMap());
-            String immagineUrl = (String) uploadResult.get("secure_url");
-            newUtente.setImmagine(immagineUrl);
 
-            newUtente = utentiRepository.save(newUtente);
+        if (immagine != null && !immagine.isEmpty()) {
+            try {
+                Map<String, Object> uploadResult = cloudinary.uploader().upload(immagine.getBytes(), ObjectUtils.emptyMap());
+                String immagineUrl = (String) uploadResult.get("secure_url");
+                newUtente.setImmagine(immagineUrl);
+            } catch (IOException e) {
+                throw new IOException("Errore durante il caricamento dell'immagine profilo: " + e.getMessage());
+            }
         }
+        if (immagineCopertina != null && !immagineCopertina.isEmpty()) {
+            try {
+                Map<String, Object> uploadResult = cloudinary.uploader().upload(immagineCopertina.getBytes(), ObjectUtils.emptyMap());
+                String immagineCopertinaUrl = (String) uploadResult.get("secure_url");
+                newUtente.setImmagineCopertina(immagineCopertinaUrl); // Aggiungi un campo immagineCopertina a Utente
+            } catch (IOException e) {
+                throw new IOException("Errore durante il caricamento dell'immagine di copertina: " + e.getMessage());
+            }
+        }
+        newUtente = utentiRepository.save(newUtente);
 
         mailgunSender.sendRegistrationEmail(newUtente);
 
@@ -96,6 +109,14 @@ public class UtentiService {
         String url= (String) cloudinary.uploader().upload(immagine.getBytes(), ObjectUtils.emptyMap()).get("url");
         System.out.println("Url " + url);
         found.setImmagine(url);
+        return this.utentiRepository.save(found);
+    }
+
+    public Utente uploadImmagineCopertina(UUID utenteId, MultipartFile immagineCopertina) throws IOException{
+        Utente found= this.findUtenteById(utenteId);
+        String url= (String) cloudinary.uploader().upload(immagineCopertina.getBytes(), ObjectUtils.emptyMap()).get("url");
+        System.out.println("Url " + url);
+        found.setImmagineCopertina(url);
         return this.utentiRepository.save(found);
     }
 

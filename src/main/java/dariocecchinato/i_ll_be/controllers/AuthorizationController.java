@@ -43,6 +43,7 @@ public class AuthorizationController {
     public UtentiResponseDTO save(
             @Validated @ModelAttribute UtentiPayloadDTO body,
             @RequestParam(value = "immagine", required = false) MultipartFile immagine,
+            @RequestParam(value = "immagineCopertina", required = false) MultipartFile immagineCopertina,
             BindingResult validationResult) throws IOException {
 
         if (validationResult.hasErrors()) {
@@ -56,7 +57,7 @@ public class AuthorizationController {
             throw new BadRequestException("L'email è già in uso.");
         }
 
-        Utente newUser = utentiService.saveUtente(body, immagine);
+        Utente newUser = utentiService.saveUtente(body, immagine, immagineCopertina);
         return new UtentiResponseDTO(newUser.getId());
     }
 
