@@ -31,17 +31,20 @@ public class Utente implements UserDetails {
     private String password;
 
     private String immagine;
+    private String immagineCopertina;
+
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
     @OneToMany(mappedBy = "creatoreEvento")
     private List<Evento> eventi;
 
-    public Utente(String nome, String cognome, String username, String email, String immagine, String password) {
+    public Utente(String nome, String cognome, String username, String email, String immagine, String immagineCopertina, String password) {
         this.nome = nome;
         this.cognome = cognome;
         this.username = username;
         this.email = email;
         this.immagine = immagine;
+        this.immagineCopertina = immagineCopertina;
         this.password=password;
     }
 
