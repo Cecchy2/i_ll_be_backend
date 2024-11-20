@@ -4,6 +4,7 @@ import dariocecchinato.i_ll_be.entities.Utente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,4 +14,6 @@ public interface UtentiRepository extends JpaRepository<Utente, UUID> {
     boolean existsByEmail(String email);
 
     Optional<Utente> findByEmail(String email);
+
+    List<Utente> findByNome (String nome);
 }

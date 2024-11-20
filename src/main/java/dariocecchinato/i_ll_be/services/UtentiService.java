@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -124,5 +125,10 @@ public class UtentiService {
         Utente found = this.utentiRepository.findById(utenteId).orElseThrow(() -> new NotFoundException(utenteId));
         if (found == null) throw new NotFoundException(utenteId);
         this.utentiRepository.delete(found);
+    }
+
+    public List<Utente> findByNome(String nome){
+        List<Utente> utenti = this.utentiRepository.findByNome(nome);
+        return utenti;
     }
 }

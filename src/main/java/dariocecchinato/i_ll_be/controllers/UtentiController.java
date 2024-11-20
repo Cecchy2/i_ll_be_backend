@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class UtentiController {
         return found;
     }
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Page<Utente> findAll(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "15") int size,
                                 @RequestParam(defaultValue = "id") String sortBy) {
@@ -65,7 +66,7 @@ public class UtentiController {
         return this.utentiService.uploadImmagine(utenteId,immagine);
     }
     @PatchMapping("/{utenteId}/immagineCopertina")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENTE', 'FORNITORE')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Utente uploadImmagineCopertina(@PathVariable UUID utenteId, @RequestParam("immagineCopertina") MultipartFile immagineCopertina) throws IOException {
         return this.utentiService.uploadImmagineCopertina(utenteId,immagineCopertina);
     }
@@ -93,6 +94,22 @@ public class UtentiController {
     @PreAuthorize("isAuthenticated()")
     public Utente uploadImmaginePic(@AuthenticationPrincipal Utente utente, @RequestParam("immagine") MultipartFile immagine) throws IOException {
         return this.utentiService.uploadImmagine(utente.getId(), immagine);
+    }
+
+    @PatchMapping("/me/immagineCopertina")
+    @PreAuthorize("isAuthenticated()")
+    public Utente uploadImmagineCopertinaPic(@AuthenticationPrincipal Utente utente, @RequestParam("immagineCopertina") MultipartFile immagineCopertina) throws IOException {
+        return this.utentiService.uploadImmagineCopertina(utente.getId(), immagineCopertina);
+    }
+
+    @GetMapping("/nome/{nome}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Utente> findByNome(@PathVariable String nome) {
+       List<Utente> utenti = this.utentiService.findByNome(nome);
+       if (utenti.isEmpty()) {
+           throw new NotFoundException("Nessun utente trovato");
+       }
+        return utenti;
     }
 
     }
