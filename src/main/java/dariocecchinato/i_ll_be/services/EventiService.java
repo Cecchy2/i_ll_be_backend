@@ -5,6 +5,10 @@ import dariocecchinato.i_ll_be.exceptions.NotFoundException;
 import dariocecchinato.i_ll_be.payloads.EventiPayloadDTO;
 import dariocecchinato.i_ll_be.repositories.EventiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -29,5 +33,10 @@ public class EventiService {
 
     public Evento findById (UUID eventoId){
         return eventiRepository.findById(eventoId).orElseThrow(()-> new NotFoundException(eventoId));
+    }
+
+    public Page<Evento> findAll(int page, int size, String sortBy){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return this.eventiRepository.findAll(pageable);
     }
 }
